@@ -97,7 +97,7 @@ bool utility::is_routing_manager(const std::string &_network) {
 
     return (r.first->second.lock_handle_ != INVALID_HANDLE_VALUE);
 #else
-    std::string its_base_path(VSOMEIP_BASE_PATH + _network);
+    std::string its_base_path = getTmpDirPath(_network);
     std::string its_lockfile(its_base_path + ".lck");
     int its_lock_ctrl(-1);
 
@@ -145,7 +145,7 @@ void utility::remove_lockfile(const std::string &_network) {
         }
     }
 #else
-    std::string its_base_path(VSOMEIP_BASE_PATH + _network);
+    std::string its_base_path = getTmpDirPath(_network);
     std::string its_lockfile(its_base_path + ".lck");
 
     if (r->second.lock_fd_ != -1) {
@@ -186,7 +186,8 @@ bool utility::is_folder(const std::string &_path) {
 }
 
 std::string utility::get_base_path(const std::string &_network) {
-    return std::string(VSOMEIP_BASE_PATH + _network + "-");
+    std::string its_base_path = getTmpDirPath(_network);
+    return std::string(its_base_path + "-");
 }
 
 client_t
@@ -314,6 +315,22 @@ std::uint16_t utility::get_max_client_number(
         its_max_clients = static_cast<std::uint16_t>(its_max_clients | (1 << var));
     }
     return its_max_clients;
+}
+
+std::string utility::getTmpDirPath(const std::string &_network) {
+    std::string its_base_path;
+#ifdef _WIN32
+    its_base_path = {VSOMEIP_BASE_PATH + _network};
+#else
+    const char *env_tmpdir = getenv("TMPDIR");
+    if(nullptr != env_tmpdir) {   
+        VSOMEIP_INFO<<"TMPDIR is "<<env_tmpdir;
+        its_base_path = {std::string(env_tmpdir) + "/" + _network};
+    } else {   
+        its_base_path = {VSOMEIP_BASE_PATH + _network};
+    }   
+#endif
+    return its_base_path;
 }
 
 } // namespace vsomeip_v3

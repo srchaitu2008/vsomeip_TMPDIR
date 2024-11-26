@@ -168,6 +168,7 @@ private:
 private:
     static std::uint16_t get_max_client_number(
             const std::shared_ptr<configuration> &_config);
+    static std::string getTmpDirPath(const std::string &_network);
 
     static std::mutex mutex__;
     static std::map<std::string, data_t> data__; // network --> data
